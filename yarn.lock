@@ -1565,6 +1565,11 @@ camelcase@^6.0.0, camelcase@^6.3.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-6.3.0.tgz#5685b95eb209ac9c0c177467778c9c84df58ba9a"
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
+caml-mkdn@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/caml-mkdn/-/caml-mkdn-0.0.2.tgz#4bdd7d4c2625e8d62fe05ff200ed3a8f9aa45965"
+  integrity sha512-xe7ogLRSj209b1rP5bTsk4pLxgDQAkl/uqugo/48RVVjKN7aNlhVpXM60fCoaIsud29tbiJvI3GT6pC02wqRFA==
+
 caml-spec@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/caml-spec/-/caml-spec-0.0.1.tgz#ebd3782e5c45e5a944af6a4501bf15bd58646034"
@@ -1830,6 +1835,11 @@ escalade@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/escalade/-/escalade-3.1.1.tgz#d8cfdc7000965c5a0174b4a82eaa5c0552742e40"
   integrity sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==
+
+escape-mkdn@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/escape-mkdn/-/escape-mkdn-0.0.3.tgz#518ffda8e9f9ced0888baee05e120aee60f25ad8"
+  integrity sha512-c4v1FQEXTpMokLf7GzxSQHoDbcjJdy+YlWIAmGLNhblefN6g4GsLTtxSuD6GkZx2H8FhzMSoPk5zMvwhZRuzOg==
 
 escape-string-regexp@4.0.0, escape-string-regexp@^4.0.0:
   version "4.0.0"
@@ -2620,6 +2630,15 @@ map-obj@^4.1.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/map-obj/-/map-obj-4.3.0.tgz#9304f906e93faae70880da102a9f1df0ea8bb05a"
   integrity sha512-hdN1wVrZbb29eBGiGjJbeP8JbKjq1urkHJ/LIP/NY48MZ1QVXUsQBV1G1zvYFHn1XE06cwjBsOI2K3Ulnj1YXQ==
+
+marked-wikirefs@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/marked-wikirefs/-/marked-wikirefs-0.0.2.tgz#6f36ecbdb6d0b1ca0c1552392e2c0b60e5377f63"
+  integrity sha512-Y05YYLRU5z0kMIK5FEiog8TFsSODUXu1lbTye6l8HLkuw5fvy0yHGHuXmnt6OnXlEFAbrNby9nJZJK/D0kjU3Q==
+  dependencies:
+    lodash "^4.17.21"
+    marked "^15.0.4"
+    wikirefs "^0.0.7"
 
 marked@^15.0.4:
   version "15.0.4"
@@ -3532,6 +3551,13 @@ which@^2.0.1:
   integrity sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==
   dependencies:
     isexe "^2.0.0"
+
+wikirefs@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/wikirefs/-/wikirefs-0.0.7.tgz#c4c1aab91bca326291e91e13417298d91f353008"
+  integrity sha512-eET3t8iMvbT5pgXolEvdCMYFIaw13YkYMRzgzLmohjuE649vkSsIQ8sevlnvgh2DtID/X+vRCI16lSO7IJXlLQ==
+  dependencies:
+    escape-mkdn "^0.0.3"
 
 word-wrap@^1.2.3:
   version "1.2.3"

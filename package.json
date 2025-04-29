@@ -27,6 +27,7 @@
     "test": "nyc mocha"
   },
   "dependencies": {
+    "caml-mkdn": "^0.0.2",
     "lodash": "^4.17.21",
     "marked": "^15.0.4"
   },
@@ -47,6 +48,7 @@
     "caml-spec": "^0.0.1",
     "del-cli": "^5.0.0",
     "eslint": "^8.27.0",
+    "marked-wikirefs": "^0.0.2",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.5.1",

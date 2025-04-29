@@ -1,25 +1,23 @@
-export default function camlExtension(opts: any = {}) {
-  return {
-    extensions: [
-      {
-        name: 'caml',
-        level: 'block',
-        start(src: string) {
-          return src.indexOf(': ');
-        },
-        tokenizer(src: string) {
-          if (src.startsWith(': ') && src.endsWith(' ::')) {
-            return {
-              type: 'caml',
-              raw: src,
-            };
-          }
-          return null;
-        },
-        renderer(token: any) {
-          return '<dd>fname</dd>';
-        },
-      },
-    ],
+import type { MarkedExtension } from 'marked';
+import { merge } from 'lodash';
+import type { CamlOptions } from './types';
+import { caml } from './lib/caml';
+
+
+export default function camlExtension(opts: Partial<CamlOptions> = {}): MarkedExtension {
+  // Set default options
+  const defaults: CamlOptions = {
+    attrs: {
+      render: true,
+      title: 'Attributes',
+    },
+    cssNames: {
+      attrbox: 'attrbox',
+      attrboxTitle: 'attrbox-title',
+      attr: 'attr',
+    }
   };
+  const fullOpts: CamlOptions = merge({}, defaults, opts);
+  const extension: MarkedExtension = caml(fullOpts);
+  return extension;
 }
