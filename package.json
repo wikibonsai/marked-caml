@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/caml-mkdn/marked-caml.git"
+    "url": "https://github.com/wikibonsai/marked-caml.git"
   },
   "files": [
     "dist/**/*"
@@ -27,7 +27,7 @@
     "test": "nyc mocha"
   },
   "dependencies": {
-    "caml-mkdn": "^0.0.2",
+    "caml-mkdn": "^0.0.4",
     "lodash": "^4.17.21",
     "marked": "^15.0.4"
   },
@@ -45,7 +45,7 @@
     "@types/sinon": "^10.0.11",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
-    "caml-spec": "^0.0.1",
+    "caml-spec": "^0.0.2",
     "del-cli": "^5.0.0",
     "eslint": "^8.27.0",
     "marked-wikirefs": "^0.0.2",
