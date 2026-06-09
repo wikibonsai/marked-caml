@@ -1,6 +1,6 @@
 {
   "name": "marked-caml",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "marked extension to add CAML (Colon Attribute Markup Language)",
   "license": "GPL-3.0",
   "author": {
