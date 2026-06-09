@@ -27,7 +27,7 @@
     "test": "nyc mocha"
   },
   "dependencies": {
-    "caml-mkdn": "^0.0.4",
+    "caml-mkdn": "^0.0.5",
     "lodash": "^4.17.21",
     "marked": "^15.0.4"
   },
