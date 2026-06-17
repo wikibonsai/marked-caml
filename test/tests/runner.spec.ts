@@ -10,12 +10,13 @@ import type { CamlTestCase } from 'caml-spec';
 import { camlCases } from 'caml-spec';
 
 
-// Tests where marked's rendering differs from markdown-it due to parser behavior
-// (marked preserves leading whitespace in paragraphs, markdown-it strips it)
-const MARKED_HTML_OVERRIDES: Record<string, string> = {
-  '[[wikirefs]]; unprefixed; single; [[wikilinks]]; should not be processed here':
-    '<p> attribute ::</p>\n<p>[[wikilink]]</p>\n',
-};
+// marked preserves leading whitespace in paragraphs; markdown-it strips it
+function markedifyHtml(descr: string, html: string): string {
+  if (descr === '[[wikirefs]]; unprefixed; single; [[wikilinks]]; should not be processed here') {
+    return html.replace('<p>attribute ::</p>', '<p> attribute ::</p>');
+  }
+  return html;
+}
 
 function run(contextMsg: string, tests: CamlTestCase[]): void {
   context(contextMsg, () => {
@@ -26,7 +27,7 @@ function run(contextMsg: string, tests: CamlTestCase[]): void {
         // create a fresh marked instance for each test
         const md = new Marked(camlExtension());
         const mkdn: string = test.mkdn;
-        const expdHTML: string = MARKED_HTML_OVERRIDES[test.descr] || test.html;
+        const expdHTML: string = markedifyHtml(test.descr, test.html);
         const actlHTML: string = md.parse(mkdn) as string;
         assert.strictEqual(actlHTML, expdHTML);
         // data assertions

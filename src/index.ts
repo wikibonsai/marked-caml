@@ -1,7 +1,22 @@
 import type { MarkedExtension } from 'marked';
-import { merge } from 'lodash';
 import type { CamlOptions } from './types';
 import { caml } from './lib/caml';
+
+function deepMerge(target: any, ...sources: any[]): any {
+  const result = { ...target };
+  for (const source of sources) {
+    if (!source) continue;
+    for (const key of Object.keys(source)) {
+      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])
+          && target[key] && typeof target[key] === 'object' && !Array.isArray(target[key])) {
+        result[key] = deepMerge(target[key], source[key]);
+      } else {
+        result[key] = source[key];
+      }
+    }
+  }
+  return result;
+}
 
 
 export default function camlExtension(opts: Partial<CamlOptions> = {}): MarkedExtension {
@@ -17,7 +32,7 @@ export default function camlExtension(opts: Partial<CamlOptions> = {}): MarkedEx
       attr: 'attr',
     }
   };
-  const fullOpts: CamlOptions = merge({}, defaults, opts);
+  const fullOpts: CamlOptions = deepMerge(defaults, opts);
   const extension: MarkedExtension = caml(fullOpts);
   return extension;
 }
