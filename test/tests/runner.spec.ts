@@ -10,10 +10,27 @@ import type { CamlTestCase } from 'caml-spec';
 import { camlCases } from 'caml-spec';
 
 
-// marked preserves leading whitespace in paragraphs; markdown-it strips it
+// marked-specific HTML adjustments:
+// - preserves leading whitespace in paragraphs (markdown-it strips it)
+// - multi-line attrs are preprocessed first, so they appear before regular
+//   attrs in the attrbox (different order from markdown-it which preserves
+//   source order)
 function markedifyHtml(descr: string, html: string): string {
   if (descr === '[[wikirefs]]; unprefixed; single; [[wikilinks]]; should not be processed here') {
     return html.replace('<p>attribute ::</p>', '<p> attribute ::</p>');
+  }
+  // adjacent tests: marked preprocesses multi-line attrs first,
+  // so they appear before regular attrs in the attrbox
+  if (descr.includes('adjacent') && html.includes('<dt>')) {
+    return html.replace(
+      /(<dl>\n)([\s\S]*?)(<\/dl>)/,
+      (match, open, content, close) => {
+        const items = content.split(/(?=<div class="attr-item">)/);
+        const multiLine = items.filter((i: string) => i.includes('<br>'));
+        const regular = items.filter((i: string) => !i.includes('<br>') && i.trim());
+        return open + multiLine.join('') + regular.join('') + close;
+      }
+    );
   }
   return html;
 }

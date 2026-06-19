@@ -48,16 +48,17 @@ export function caml(opts: CamlOptions): MarkedExtension {
     }
 
     let html: string = `<aside class="${opts.cssNames.attrbox || 'attrbox'}">\n`;
-    html += `<span class="${opts.cssNames.attrboxTitle || 'attrbox-title'}">${opts.attrs.title || 'Attributes'}</span>\n`;
     html += '<dl>\n';
 
     for (const key in attributeCollection) {
+      html += '<div class="attr-item">\n';
       html += `<dt>${key}</dt>\n`;
       for (const item of attributeCollection[key]) {
         const keySlug: string = key.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
         const display: string = displayText(item);
         html += `<dd><span class="${opts.cssNames.attr || 'attr'} ${item.type} ${keySlug}">${display}</span></dd>\n`;
       }
+      html += '</div>\n';
     }
 
     html += '</dl>\n</aside>\n';
@@ -274,6 +275,10 @@ export function caml(opts: CamlOptions): MarkedExtension {
           if (handledPositions.has(start)) { continue; }
           if (!isTop(markdown, start, fullMatch)) { continue; }
 
+          // reject typed wikilinks: value has content after ']]'
+          // e.g. ':linktype::[[target]].' is a typed wikilink, not a wikiattr
+          if (valText && /\]\][^\],\s]/.test(valText)) { continue; }
+
           let items: CamlValData[];
 
           if (valText.startsWith('\n')) {
@@ -312,64 +317,7 @@ export function caml(opts: CamlOptions): MarkedExtension {
             }
           } else {
             // inline value (single or comma-separated)
-            // Check if valText ends with a multi-line marker (>, |, >-, >|)
-            const mlineMarkerMatch = new RegExp(',\\s*' + CAML.RGX.MARKER.MLINE_STR.source + '\\s*$').exec(valText);
-            if (mlineMarkerMatch) {
-              // Get the text after the CAML match to find indented continuation lines
-              let afterMatch: string = markdown.substring(start + fullMatch.length);
-              let extraConsumed = 0;
-              // Skip the leading newline (comes right after the marker on the first line)
-              if (afterMatch.startsWith('\n')) {
-                afterMatch = afterMatch.substring(1);
-                extraConsumed = 1;
-              }
-              // Collect indented lines (multi-line content)
-              const contentLines: string[] = [];
-              const remainingLines = afterMatch.split('\n');
-              for (const line of remainingLines) {
-                if (/^\s+\S/.test(line)) {
-                  contentLines.push(line);
-                  extraConsumed += line.length + 1; // +1 for the \n
-                } else if (line.trim().length === 0 && contentLines.length > 0) {
-                  // Trailing empty line
-                  contentLines.push(line);
-                  extraConsumed += line.length + 1;
-                } else {
-                  break;
-                }
-              }
-
-              const mlineMarker = mlineMarkerMatch[1];
-              const beforeMline = valText.substring(0, mlineMarkerMatch.index);
-              items = parseCommaValues(beforeMline);
-
-              // Build multi-line resolve input (no leading space for comma context)
-              // Use full content for correct value, fix string to strip one trailing newline
-              const mlineContent = contentLines.join('\n');
-              const mlineResolveInput = mlineMarker + '\n' + mlineContent;
-              const trimmedMlineContent = mlineContent.replace(/\n$/, '');
-              const isKeepMode: boolean = mlineMarker.endsWith('+');
-              const mlineItem: CamlValData = CAML.resolve(mlineResolveInput);
-              mlineItem.string = isKeepMode
-                ? mlineMarker + '\n' + mlineContent
-                : mlineMarker + '\n' + trimmedMlineContent;
-              items.push(mlineItem);
-
-              // Update replacement to cover multi-line content
-              replacements.push({
-                start: start,
-                end: start + fullMatch.length + extraConsumed,
-                replacement: '',
-              });
-
-              if (items.length > 0) {
-                for (const item of items) {
-                  addToCollection(key, item);
-                }
-              }
-              continue;
-            }
-
+            // multi-line indicators in comma lists are treated as literal strings
             items = parseCommaValues(valText);
           }
 
