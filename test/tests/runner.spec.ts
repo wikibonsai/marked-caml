@@ -8,6 +8,9 @@ import { attributeCollection } from '../../src/lib/caml';
 
 import type { CamlTestCase } from 'caml-spec';
 import { camlCases } from 'caml-spec';
+// wiki-value resolvers from the shared wikirefs-spec fixture data — a caml wiki attr
+// value is a wikiref, resolved the same way wikirefs tests resolve.
+import { makeMockOptsForRenderOnly } from 'wikirefs-spec';
 
 
 // marked-specific HTML adjustments:
@@ -41,12 +44,9 @@ function run(contextMsg: string, tests: CamlTestCase[]): void {
     for (const test of tests) {
       const desc: string = `[${('00' + (++i)).slice(-3)}] ` + (test.descr || '');
       it(desc, () => {
-        // create a fresh marked instance for each test; fixtures resolver so wiki
-        // attr <a> hrefs match caml-spec's expected output
-        const md = new Marked(camlExtension({
-          resolveHtmlHref: (fname: string) => '/tests/fixtures/' + fname,
-          resolveHtmlText: (fname: string) => fname.replace(/-/g, ' '),
-        }));
+        // create a fresh marked instance for each test; shared wikirefs-spec
+        // resolvers so wiki attr <a> hrefs + titles match caml-spec's expected output
+        const md = new Marked(camlExtension(makeMockOptsForRenderOnly()));
         const mkdn: string = test.mkdn;
         const expdHTML: string = markedifyHtml(test.descr, test.html);
         const actlHTML: string = md.parse(mkdn) as string;
