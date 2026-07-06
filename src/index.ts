@@ -30,7 +30,6 @@ export default function camlExtension(opts: Partial<CamlOptions> = {}): MarkedEx
     cssNames: {
       attrbox: 'attrbox',
       attrItem: 'attr-item',
-      attrboxTitle: 'attrbox-title',
       attr: 'attr',
       wiki: 'wiki',
       invalid: 'invalid',

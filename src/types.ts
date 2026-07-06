@@ -14,7 +14,6 @@ export interface OptCssNames {
   doctype?: string;
   attrbox?: string;
   attrItem?: string;
-  attrboxTitle?: string;
 }
 
 export interface CamlOptions {
