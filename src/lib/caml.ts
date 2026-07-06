@@ -51,10 +51,40 @@ export function caml(opts: CamlOptions): MarkedExtension {
     html += '<dl>\n';
 
     for (const key in attributeCollection) {
-      html += '<div class="attr-item">\n';
+      html += '<div class="' + (opts.cssNames.attrItem || 'attr-item') + '">\n';
       html += `<dt>${key}</dt>\n`;
       for (const item of attributeCollection[key]) {
         const keySlug: string = key.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+        // wiki value: render as an <a> link using caml's own resolvers (or a plain
+        // fallback). NOTE: this <a> intentionally DUPLICATES the anchor built by
+        // marked-wikirefs, so marked-caml stays standalone (no marked-wikirefs dep).
+        // Keep the class contract in sync with marked-wikirefs' wikiattr renderer:
+        // https://github.com/wikibonsai/marked-wikirefs/blob/main/src/lib/wikiattr.ts
+        if (item.type === 'wiki') {
+          const fname: string = String(item.value).replace(/^\[\[/, '').replace(/\]\]$/, '');
+          const resolveHref = opts.resolveHtmlHref;
+          const resolveText = opts.resolveHtmlText;
+          const resolveDoc = opts.resolveDocType;
+          const baseUrl: string = opts.baseUrl ?? '';
+          const href: string | undefined = resolveHref
+            ? resolveHref(fname)
+            : '/' + fname.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+          const text: string = (resolveText && resolveText(fname)) || fname.replace(/-/g, ' ');
+          const doctype: string = resolveDoc ? (resolveDoc(fname) || '') : '';
+          const attr: string = opts.cssNames.attr || 'attr';
+          const wiki: string = opts.cssNames.wiki || 'wiki';
+          if (href) {
+            const classes: string[] = [attr, wiki, (opts.cssNames.reftype || 'reftype__') + keySlug];
+            if (doctype.length > 0) {
+              classes.push((opts.cssNames.doctype || 'doctype__') + doctype.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''));
+            }
+            const url: string = baseUrl + href;
+            html += `<dd><a class="${classes.join(' ')}" href="${url}" data-href="${url}">${text}</a></dd>\n`;
+          } else {
+            html += `<dd><a class="${attr} ${wiki} ${opts.cssNames.invalid || 'invalid'}">[[${fname}]]</a></dd>\n`;
+          }
+          continue;
+        }
         const display: string = displayText(item);
         html += `<dd><span class="${opts.cssNames.attr || 'attr'} ${item.type} ${keySlug}">${display}</span></dd>\n`;
       }
@@ -216,6 +246,12 @@ export function caml(opts: CamlOptions): MarkedExtension {
         // Reset attribute collection for each parse
         attributeCollection = {};
 
+        // normalize CRLF -> LF so multi-line block-scalar detection (which keys off
+        // a '\n' right after the >/| indicator + indented continuation lines) works
+        // on files saved with Windows line endings. marked, unlike markdown-it,
+        // doesn't normalize line endings before the preprocess hook.
+        markdown = markdown.replace(/\r\n/g, '\n');
+
         let modified: string = markdown;
         const replacements: { start: number; end: number; replacement: string }[] = [];
         const handledPositions: Set<number> = new Set();
@@ -246,10 +282,14 @@ export function caml(opts: CamlOptions): MarkedExtension {
             ? ' ' + marker + '\n' + content
             : ' ' + marker + '\n' + trimmedContent;
           const item: CamlValData = CAML.resolve(resolveInput);
-          // keep mode preserves trailing newlines in the string; others strip one
-          item.string = isKeepMode
-            ? ' ' + marker + '\n' + content
-            : ' ' + marker + '\n' + trimmedContent;
+          // string field: keep mode preserves all trailing newlines; otherwise strip
+          // the block's trailing newline(s). If another attr/paragraph follows, the
+          // trailing blank line is a separator (strip all); at EOF, keep the single \n.
+          const followedByContent: boolean = /\S/.test(markdown.slice(start + fullMatch.length));
+          const stringContent: string = isKeepMode
+            ? content
+            : (followedByContent ? content.replace(/\n+$/, '') : content.replace(/\n$/, ''));
+          item.string = ' ' + marker + '\n' + stringContent;
           addToCollection(key, item);
 
           handledPositions.add(start);

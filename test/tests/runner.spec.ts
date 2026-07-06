@@ -41,8 +41,12 @@ function run(contextMsg: string, tests: CamlTestCase[]): void {
     for (const test of tests) {
       const desc: string = `[${('00' + (++i)).slice(-3)}] ` + (test.descr || '');
       it(desc, () => {
-        // create a fresh marked instance for each test
-        const md = new Marked(camlExtension());
+        // create a fresh marked instance for each test; fixtures resolver so wiki
+        // attr <a> hrefs match caml-spec's expected output
+        const md = new Marked(camlExtension({
+          resolveHtmlHref: (fname: string) => '/tests/fixtures/' + fname,
+          resolveHtmlText: (fname: string) => fname.replace(/-/g, ' '),
+        }));
         const mkdn: string = test.mkdn;
         const expdHTML: string = markedifyHtml(test.descr, test.html);
         const actlHTML: string = md.parse(mkdn) as string;

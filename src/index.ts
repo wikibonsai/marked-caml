@@ -2,6 +2,7 @@ import type { MarkedExtension } from 'marked';
 import type { CamlOptions } from './types';
 import { caml } from './lib/caml';
 
+
 function deepMerge(target: any, ...sources: any[]): any {
   const result = { ...target };
   for (const source of sources) {
@@ -28,9 +29,17 @@ export default function camlExtension(opts: Partial<CamlOptions> = {}): MarkedEx
     },
     cssNames: {
       attrbox: 'attrbox',
+      attrItem: 'attr-item',
       attrboxTitle: 'attrbox-title',
       attr: 'attr',
-    }
+      wiki: 'wiki',
+      invalid: 'invalid',
+      reftype: 'reftype__',
+      doctype: 'doctype__',
+    },
+    // NB: no default resolvers here — wiki values reuse a co-registered
+    // marked-wikirefs' resolvers (via getWikiRefsOpts) when caml's own aren't set,
+    // so configuring wikirefs alone suffices. See renderAttributeBox in ./lib/caml.
   };
   const fullOpts: CamlOptions = deepMerge(defaults, opts);
   const extension: MarkedExtension = caml(fullOpts);
