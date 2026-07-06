@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "caml-mkdn": "^0.0.7",
+    "defu": "^6.1.7",
     "marked": "^15.0.4"
   },
   "devDependencies": {
