@@ -69,7 +69,7 @@ export function caml(opts: CamlOptions): MarkedExtension {
           const href: string | undefined = resolveHref
             ? resolveHref(fname)
             : '/' + fname.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-          const text: string = (resolveText && resolveText(fname)) || fname.replace(/-/g, ' ');
+          const text: string = (resolveText && resolveText(fname)) || fname;
           const doctype: string = resolveDoc ? (resolveDoc(fname) || '') : '';
           const attr: string = opts.cssNames.attr || 'attr';
           const wiki: string = opts.cssNames.wiki || 'wiki';
