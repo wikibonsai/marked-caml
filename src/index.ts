@@ -22,9 +22,9 @@ export default function camlExtension(opts: Partial<CamlOptions> = {}): MarkedEx
       doctype: 'doctype__',
     },
     // NB: no default resolvers here — and none are needed. caml does NOT resolve
-    // wikirefs itself: it owns the attrbox and emits INERT wiki markers that a
+    // wikirefs itself: it owns the attrbox and emits unresolved wiki markers that a
     // co-registered marked-wikirefs resolves in a later postprocess (the enrich
-    // seam — see caml-wikiref-enrich-seam / ./lib/caml). Resolvers live on
+    // hand-off — see caml-wikiref-handoff / ./lib/caml). Resolvers live on
     // wikirefsExtension() ONLY; camlExtension() takes none. (Legacy: if resolvers
     // ARE passed here, caml resolves standalone — for caml-only consumers.)
   };

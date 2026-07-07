@@ -56,9 +56,9 @@ export function caml(opts: CamlOptions): MarkedExtension {
       for (const item of attributeCollection[key]) {
         const keySlug: string = key.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
         // wiki value: caml does NOT resolve wikirefs itself. By default (no resolver
-        // configured) it emits an INERT wiki marker carrying attr context (reftype);
+        // configured) it emits an unresolved wiki marker carrying attr context (reftype);
         // a co-registered marked-wikirefs resolves the `data-wikiref` target in a
-        // later postprocess (the enrich seam — see caml-wikiref-enrich-seam). caml
+        // later postprocess (the enrich hand-off — see caml-wikiref-handoff). caml
         // takes NO resolvers in the standard pairing; resolvers live on wikirefs only.
         // (Legacy: if a resolver IS explicitly passed to camlExtension, caml resolves
         // standalone — kept for backward-compat / caml-only consumers.)
@@ -69,7 +69,7 @@ export function caml(opts: CamlOptions): MarkedExtension {
           const reftype: string = (opts.cssNames.reftype || 'reftype__') + keySlug;
           const resolveHref = opts.resolveHtmlHref;
           if (!resolveHref) {
-            // inert marker (default): attr classes owned by caml; `data-wikiref` in
+            // unresolved marker (default): attr classes owned by caml; `data-wikiref` in
             // wikirefs' vocabulary for a co-registered wikirefs to resolve. Renders
             // as literal [[fname]] when no wikirefs is present.
             html += `<dd><a class="${attr} ${wiki} ${reftype}" data-wikiref="${fname}">[[${fname}]]</a></dd>\n`;
