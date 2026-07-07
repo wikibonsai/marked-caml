@@ -119,7 +119,7 @@ describe('marked-caml', () => {
     it('renders a wiki value as a plain string span (no href, no marker)', () => {
       const md = new Marked(camlExtension());
       const html: string = md.parse(':linktype::[[fname-a]]\n') as string;
-      assert.ok(html.includes('<span class="attr wiki linktype">[[fname-a]]</span>'), 'string span with [[fname]]');
+      assert.ok(html.includes('<span class="attr string linktype">[[fname-a]]</span>'), 'string span with [[fname]]');
       assert.ok(!/href=/.test(html), 'must NOT fabricate an href');
       assert.ok(!html.includes('data-wikiref'), 'no hand-off attribute in output');
     });

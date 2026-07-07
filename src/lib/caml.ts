@@ -55,13 +55,14 @@ export function caml(opts: CamlOptions): MarkedExtension {
       html += `<dt>${key}</dt>\n`;
       for (const item of attributeCollection[key]) {
         const keySlug: string = key.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-        // caml does NOT resolve wikirefs. A wiki value renders like any other value —
-        // a plain string span showing the literal [[fname]] (type class 'wiki'). A
-        // co-registered marked-wikirefs finds these `attr wiki` spans (text [[...]])
-        // and upgrades them to resolved links in a later postprocess (the hand-off —
-        // see caml-wikiref-handoff). With no wikirefs, the string span is the output.
+        // caml does NOT resolve wikirefs. A wiki value renders as a plain string — a
+        // span with the 'string' type class showing the literal [[fname]] — exactly
+        // like any string value. A co-registered marked-wikirefs finds attr spans whose
+        // text is [[...]] and upgrades them to links (the hand-off — see
+        // caml-wikiref-handoff). With no wikirefs, the string span is the output.
+        const typeCls: string = item.type === 'wiki' ? 'string' : item.type;
         const display: string = displayText(item);
-        html += `<dd><span class="${opts.cssNames.attr || 'attr'} ${item.type} ${keySlug}">${display}</span></dd>\n`;
+        html += `<dd><span class="${opts.cssNames.attr || 'attr'} ${typeCls} ${keySlug}">${display}</span></dd>\n`;
       }
       html += '</div>\n';
     }
