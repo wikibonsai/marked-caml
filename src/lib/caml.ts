@@ -55,26 +55,35 @@ export function caml(opts: CamlOptions): MarkedExtension {
       html += `<dt>${key}</dt>\n`;
       for (const item of attributeCollection[key]) {
         const keySlug: string = key.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-        // wiki value: render as an <a> link using caml's own resolvers (or a plain
-        // fallback). NOTE: this <a> intentionally DUPLICATES the anchor built by
-        // marked-wikirefs, so marked-caml stays standalone (no marked-wikirefs dep).
-        // Keep the class contract in sync with marked-wikirefs' wikiattr renderer:
-        // https://github.com/wikibonsai/marked-wikirefs/blob/main/src/lib/wikiattr.ts
+        // wiki value: caml does NOT resolve wikirefs itself. By default (no resolver
+        // configured) it emits an INERT wiki marker carrying attr context (reftype);
+        // a co-registered marked-wikirefs resolves the `data-wikiref` target in a
+        // later postprocess (the enrich seam — see caml-wikiref-enrich-seam). caml
+        // takes NO resolvers in the standard pairing; resolvers live on wikirefs only.
+        // (Legacy: if a resolver IS explicitly passed to camlExtension, caml resolves
+        // standalone — kept for backward-compat / caml-only consumers.)
         if (item.type === 'wiki') {
           const fname: string = String(item.value).replace(/^\[\[/, '').replace(/\]\]$/, '');
+          const attr: string = opts.cssNames.attr || 'attr';
+          const wiki: string = opts.cssNames.wiki || 'wiki';
+          const reftype: string = (opts.cssNames.reftype || 'reftype__') + keySlug;
           const resolveHref = opts.resolveHtmlHref;
+          if (!resolveHref) {
+            // inert marker (default): attr classes owned by caml; `data-wikiref` in
+            // wikirefs' vocabulary for a co-registered wikirefs to resolve. Renders
+            // as literal [[fname]] when no wikirefs is present.
+            html += `<dd><a class="${attr} ${wiki} ${reftype}" data-wikiref="${fname}">[[${fname}]]</a></dd>\n`;
+            continue;
+          }
+          // legacy standalone resolution (resolver explicitly provided to caml)
           const resolveText = opts.resolveHtmlText;
           const resolveDoc = opts.resolveDocType;
           const baseUrl: string = opts.baseUrl ?? '';
-          const href: string | undefined = resolveHref
-            ? resolveHref(fname)
-            : '/' + fname.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+          const href: string | undefined = resolveHref(fname);
           const text: string = (resolveText && resolveText(fname)) || fname;
           const doctype: string = resolveDoc ? (resolveDoc(fname) || '') : '';
-          const attr: string = opts.cssNames.attr || 'attr';
-          const wiki: string = opts.cssNames.wiki || 'wiki';
           if (href) {
-            const classes: string[] = [attr, wiki, (opts.cssNames.reftype || 'reftype__') + keySlug];
+            const classes: string[] = [attr, wiki, reftype];
             if (doctype.length > 0) {
               classes.push((opts.cssNames.doctype || 'doctype__') + doctype.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''));
             }
