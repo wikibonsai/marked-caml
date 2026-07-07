@@ -111,28 +111,17 @@ describe('marked-caml', () => {
 
   });
 
-  // enrich seam: without a resolver, caml must NOT fabricate a wiki link — it emits an
-  // INERT marker (attr classes + data-wikiref) for a co-registered marked-wikirefs to
-  // resolve in a later postprocess. See caml-wikiref-enrich-seam.
-  describe('wiki attr value: inert marker (no resolver)', () => {
+  // hand-off: caml never resolves/fabricates a wiki link — a wiki value renders like
+  // any other value, a plain string span showing the literal [[fname]]. A co-registered
+  // marked-wikirefs upgrades these `attr wiki` spans to links. See caml-wikiref-handoff.
+  describe('wiki attr value: string span', () => {
 
-    it('emits an inert data-wikiref marker, not a fabricated href', () => {
+    it('renders a wiki value as a plain string span (no href, no marker)', () => {
       const md = new Marked(camlExtension());
       const html: string = md.parse(':linktype::[[fname-a]]\n') as string;
-      assert.ok(html.includes('data-wikiref="fname-a"'), 'should carry the data-wikiref marker');
-      assert.ok(html.includes('[[fname-a]]'), 'should keep the [[brackets]] literal (inert)');
-      assert.ok(html.includes('class="attr wiki reftype__linktype"'), 'caml keeps attr-context classes');
+      assert.ok(html.includes('<span class="attr wiki linktype">[[fname-a]]</span>'), 'string span with [[fname]]');
       assert.ok(!/href=/.test(html), 'must NOT fabricate an href');
-    });
-
-    it('still resolves standalone when a resolver IS explicitly passed (legacy)', () => {
-      const md = new Marked(camlExtension({
-        resolveHtmlHref: (f: string) => '/' + f,
-        resolveHtmlText: (f: string) => f,
-      } as any));
-      const html: string = md.parse(':linktype::[[fname-a]]\n') as string;
-      assert.ok(html.includes('href="/fname-a"'), 'explicit resolver -> resolved link');
-      assert.ok(!html.includes('data-wikiref'), 'resolved path emits no inert marker');
+      assert.ok(!html.includes('data-wikiref'), 'no hand-off attribute in output');
     });
 
   });

@@ -21,12 +21,11 @@ export default function camlExtension(opts: Partial<CamlOptions> = {}): MarkedEx
       reftype: 'reftype__',
       doctype: 'doctype__',
     },
-    // NB: no default resolvers here — and none are needed. caml does NOT resolve
-    // wikirefs itself: it owns the attrbox and emits unresolved wiki markers that a
-    // co-registered marked-wikirefs resolves in a later postprocess (the enrich
-    // hand-off — see caml-wikiref-handoff / ./lib/caml). Resolvers live on
-    // wikirefsExtension() ONLY; camlExtension() takes none. (Legacy: if resolvers
-    // ARE passed here, caml resolves standalone — for caml-only consumers.)
+    // NB: no resolvers here — caml does NOT resolve wikirefs. It owns the attrbox
+    // and emits unresolved wiki markers that a co-registered marked-wikirefs resolves
+    // in a later postprocess (the enrich hand-off — see caml-wikiref-handoff /
+    // ./lib/caml). Resolvers live on wikirefsExtension() ONLY; camlExtension() takes
+    // none. With no wikirefs present, wiki attr values render as literal [[fname]].
   };
   // defu(opts, defaults): user opts win, defaults fill gaps — parity with wikirefs
   const fullOpts: CamlOptions = defu(opts, defaults) as CamlOptions;
