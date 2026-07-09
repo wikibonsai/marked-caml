@@ -291,9 +291,15 @@ export function caml(opts: CamlOptions): MarkedExtension {
           if (handledPositions.has(start)) { continue; }
           if (!isTop(markdown, start, fullMatch)) { continue; }
 
-          // reject typed wikilinks: value has content after ']]'
-          // e.g. ':linktype::[[target]].' is a typed wikilink, not a wikiattr
-          if (valText && /\]\][^\],\s]/.test(valText)) { continue; }
+          // reject typed wikilinks / trailing text: ']]' followed (after optional
+          // whitespace) by a non-comma, non-']' char — e.g. '[[target]].' or
+          // '[[a]],[[b]] some text'. A comma AFTER the whitespace is a list separator,
+          // so padded lists like '[[a]] , [[b]]' are allowed.
+          if (valText && /\]\][ \t]*[^\s,\]]/.test(valText)) { continue; }
+          // strictness: only ONE optional space is allowed after '::' (parity with
+          // wikirefs, which rejects >1 space → not a wikiattr). Newline-led (mkdn-list)
+          // and single-space values are unaffected.
+          if (/::[ \t]{2,}/.test(fullMatch)) { continue; }
 
           let items: CamlValData[];
 
