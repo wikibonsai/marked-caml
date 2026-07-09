@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import type { CamlValData } from 'caml-mkdn';
 
 import { Marked } from 'marked';
-import camlExtension from '../../src';
-import { attributeCollection } from '../../src/lib/caml';
+import camlExtension from '../src';
+import { attributeCollection } from '../src/lib/caml';
 
 import type { CamlTestCase } from 'caml-spec';
 import { camlCases, camlWithoutWikiRefsCases } from 'caml-spec';

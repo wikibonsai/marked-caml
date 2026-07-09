@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 
 import { Marked } from 'marked';
 import markedFootnote from 'marked-footnote';
-import camlExtension from '../../src';
+import camlExtension from '../src';
 import wikirefsExtension from 'marked-wikirefs';
 
 import type { CamlTestCase } from 'caml-spec';
