@@ -7,23 +7,22 @@ import camlExtension from '../../src';
 import { attributeCollection } from '../../src/lib/caml';
 
 import type { CamlTestCase } from 'caml-spec';
-import { camlCases } from 'caml-spec';
-// wiki-value resolvers from the shared wikirefs-spec fixture data — a caml wiki attr
-// value is a wikiref, resolved the same way wikirefs tests resolve.
-import { makeMockOptsForRenderOnly } from 'wikirefs-spec';
+import { camlCases, camlWithoutWikiRefsCases } from 'caml-spec';
 
+
+// caml ALONE (no marked-wikirefs co-registered). caml never resolves wikirefs — a
+// wiki-valued attribute renders as a plain string span (the 'string' type class) showing
+// the literal [[fname]]. Runs the shared primitives (camlCases) + the standalone wiki
+// cases (camlWithoutWikiRefsCases). caml + wikirefs is covered in render-w-wiki.spec.ts.
 
 // marked-specific HTML adjustments:
 // - preserves leading whitespace in paragraphs (markdown-it strips it)
-// - multi-line attrs are preprocessed first, so they appear before regular
-//   attrs in the attrbox (different order from markdown-it which preserves
-//   source order)
+// - multi-line attrs are preprocessed first, so they appear before regular attrs in the
+//   attrbox (different order from markdown-it, which preserves source order)
 function markedifyHtml(descr: string, html: string): string {
   if (descr === '[[wikirefs]]; unprefixed; single; [[wikilinks]]; should not be processed here') {
     return html.replace('<p>attribute ::</p>', '<p> attribute ::</p>');
   }
-  // adjacent tests: marked preprocesses multi-line attrs first,
-  // so they appear before regular attrs in the attrbox
   if (descr.includes('adjacent') && html.includes('<dt>')) {
     return html.replace(
       /(<dl>\n)([\s\S]*?)(<\/dl>)/,
@@ -44,16 +43,14 @@ function run(contextMsg: string, tests: CamlTestCase[]): void {
     for (const test of tests) {
       const desc: string = `[${('00' + (++i)).slice(-3)}] ` + (test.descr || '');
       it(desc, () => {
-        // create a fresh marked instance for each test; shared wikirefs-spec
-        // resolvers so wiki attr <a> hrefs + titles match caml-spec's expected output
-        const md = new Marked(camlExtension(makeMockOptsForRenderOnly()));
-        const mkdn: string = test.mkdn;
+        // fresh marked instance per test; caml takes no resolvers (it never resolves wikirefs).
+        const md = new Marked(camlExtension());
         const expdHTML: string = markedifyHtml(test.descr, test.html);
-        const actlHTML: string = md.parse(mkdn) as string;
+        const actlHTML: string = md.parse(test.mkdn) as string;
         assert.strictEqual(actlHTML, expdHTML);
         // data assertions
         if (test.data && test.data.parse) {
-          const expdParse = test.data.parse;
+          const expdParse: any = test.data.parse;
           for (const key in expdParse) {
             assert.ok(attributeCollection[key], `expected key "${key}" in attributeCollection`);
             const expdItems: CamlValData[] = expdParse[key];
@@ -70,24 +67,23 @@ function run(contextMsg: string, tests: CamlTestCase[]): void {
   });
 }
 
-describe('marked-caml', () => {
+describe('marked-caml: caml alone (no wikirefs)', () => {
 
   describe('render; mkdn -> html', () => {
 
     run('caml-spec', camlCases);
+    run('wiki values as string spans', camlWithoutWikiRefsCases);
 
   });
 
   describe('state management', () => {
 
     it('consecutive parses should reset attributeCollection', () => {
-      // first parse
       const md1 = new Marked(camlExtension());
       md1.parse(':title::First Document\n');
       assert.ok(attributeCollection['title'], 'first parse should have "title"');
       assert.strictEqual(attributeCollection['title'][0].string, 'First Document');
 
-      // second parse (preprocess hook should reset attributeCollection)
       const md2 = new Marked(camlExtension());
       md2.parse(':author::Jane Doe\n');
       assert.ok(attributeCollection['author'], 'second parse should have "author"');
@@ -96,11 +92,9 @@ describe('marked-caml', () => {
 
     it('attributeCollection should only contain keys from most recent parse', () => {
       const md1 = new Marked(camlExtension());
-
       md1.parse(':color::blue\n:size::large\n');
       assert.ok(attributeCollection['color'], 'should have "color"');
       assert.ok(attributeCollection['size'], 'should have "size"');
-      const keyCount1: number = Object.keys(attributeCollection).length;
 
       md1.parse(':shape::circle\n');
       assert.ok(attributeCollection['shape'], 'should have "shape" after second parse');
@@ -111,9 +105,9 @@ describe('marked-caml', () => {
 
   });
 
-  // hand-off: caml never resolves/fabricates a wiki link — a wiki value renders like
-  // any other value, a plain string span showing the literal [[fname]]. A co-registered
-  // marked-wikirefs upgrades these `attr wiki` spans to links. See caml-wikiref-handoff.
+  // hand-off: caml never resolves/fabricates a wiki link — a wiki value renders like any
+  // other value, a plain string span showing the literal [[fname]]. A co-registered
+  // marked-wikirefs upgrades these spans to links. See caml-wikiref-handoff.
   describe('wiki attr value: string span', () => {
 
     it('renders a wiki value as a plain string span (no href, no marker)', () => {
@@ -122,6 +116,16 @@ describe('marked-caml', () => {
       assert.ok(html.includes('<span class="attr string linktype">[[fname-a]]</span>'), 'string span with [[fname]]');
       assert.ok(!/href=/.test(html), 'must NOT fabricate an href');
       assert.ok(!html.includes('data-wikiref'), 'no hand-off attribute in output');
+    });
+
+    it('ignores any resolvers passed to caml (caml never resolves wikirefs)', () => {
+      const md = new Marked(camlExtension({
+        resolveHtmlHref: (f: string) => '/' + f,
+        resolveHtmlText: (f: string) => f,
+      } as any));
+      const html: string = md.parse(':attrtype::[[fname-a]]\n') as string;
+      assert.ok(html.includes('<span class="attr string attrtype">[[fname-a]]</span>'), 'string span (resolvers ignored)');
+      assert.ok(!/href=/.test(html), 'no href even with resolvers');
     });
 
   });

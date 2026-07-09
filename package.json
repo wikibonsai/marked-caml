@@ -47,6 +47,7 @@
     "caml-spec": "^0.0.4-spec",
     "del-cli": "^5.0.0",
     "eslint": "^8.27.0",
+    "marked-footnote": "^1.4.0",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.5.1",
