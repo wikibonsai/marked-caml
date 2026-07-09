@@ -296,6 +296,13 @@ export function caml(opts: CamlOptions): MarkedExtension {
           // '[[a]],[[b]] some text'. A comma AFTER the whitespace is a list separator,
           // so padded lists like '[[a]] , [[b]]' are allowed.
           if (valText && /\]\][ \t]*[^\s,\]]/.test(valText)) { continue; }
+          // labelled wikilinks are typed wikilinks, not attrs (parity with
+          // markdown-it-caml): a wikiattr value is a bare reference ('[[target]]'), so a
+          // label ('[[target|label]]') means display-text prose — caml stands down and
+          // lets wikirefs render the typed wikilink (e.g. ':linktype::[[fname|label]]').
+          // (A bare '[[target]]' stays a wikiattr; a malformed '[fname]' stays a caml
+          // string primitive — only the labelled wiki form falls back.)
+          if (valText && /\[\[[^\]]*\|[^\]]*\]\]/.test(valText)) { continue; }
           // strictness: only ONE optional space is allowed after '::' (parity with
           // wikirefs, which rejects >1 space → not a wikiattr). Newline-led (mkdn-list)
           // and single-space values are unaffected.
