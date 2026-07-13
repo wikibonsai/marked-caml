@@ -3,7 +3,14 @@ import assert from 'node:assert/strict';
 import { Marked } from 'marked';
 import markedFootnote from 'marked-footnote';
 import camlExtension from '../src';
-import wikirefsExtension from 'marked-wikirefs';
+// the wikirefs sibling is a devDep for the co-registration (dual) test ONLY. gate on it:
+// if it isn't installed (fresh CI without the companion), the dual suite SKIPS rather than
+// crashing the file on a missing import.
+/* eslint-disable @typescript-eslint/no-var-requires */
+let wikirefsExtension: any;
+try { const m = require('marked-wikirefs'); wikirefsExtension = (m && m.default) || m; } catch { /* sibling not installed — dual suite skips */ }
+/* eslint-enable @typescript-eslint/no-var-requires */
+const hasWikirefsSibling: boolean = !!wikirefsExtension;
 
 import type { CamlTestCase } from 'caml-spec';
 import { camlCases } from 'caml-spec';
@@ -56,7 +63,8 @@ function run(contextMsg: string, tests: RenderCase[]): void {
   });
 }
 
-describe('marked-caml: caml + wikirefs', () => {
+// dual suite runs only when the wikirefs sibling is installed (see hasWikirefsSibling)
+(hasWikirefsSibling ? describe : describe.skip)('marked-caml: caml + wikirefs', () => {
 
   before(() => {
     // in the caml + wikirefs dual, caml's preprocess disrupts marked-footnote's footnote
