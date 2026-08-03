@@ -3,7 +3,6 @@
 export interface OptAttr {
   enable?: boolean;
   render?: boolean;
-  title?: string;
 }
 
 export interface OptCssNames {

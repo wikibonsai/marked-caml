@@ -10,7 +10,6 @@ export default function camlExtension(opts: Partial<CamlOptions> = {}): MarkedEx
   const defaults: CamlOptions = {
     attrs: {
       render: true,
-      title: 'Attributes',
     },
     cssNames: {
       attrbox: 'attrbox',
