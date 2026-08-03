@@ -301,8 +301,13 @@ export function caml(opts: CamlOptions): MarkedExtension {
           // label ('[[target|label]]') means display-text prose — caml stands down and
           // lets wikirefs render the typed wikilink (e.g. ':linktype::[[fname|label]]').
           // (A bare '[[target]]' stays a wikiattr; a malformed '[fname]' stays a caml
-          // string primitive — only the labelled wiki form falls back.)
+          // string primitive — only the non-bare wiki forms fall back.)
           if (valText && /\[\[[^\]]*\|[^\]]*\]\]/.test(valText)) { continue; }
+          // header wikilinks ('[[target#header]]') are section links, not bare wikiattr
+          // refs — like labelled wikilinks, caml stands down and lets wikirefs render the
+          // (typed) wikilink (e.g. 'attrtype::[[fname#h]]' → inline link; ':type::[[fname#h]]'
+          // → typed link). wikirefs-spec marks these 'headers not supported in wikiattrs'.
+          if (valText && /\[\[[^\]]*#[^\]]*\]\]/.test(valText)) { continue; }
           // strictness: only ONE optional space is allowed after '::' (parity with
           // wikirefs, which rejects >1 space → not a wikiattr). Newline-led (mkdn-list)
           // and single-space values are unaffected.
