@@ -7,13 +7,13 @@ import camlExtension from '../src';
 import { attributeCollection } from '../src/lib/caml';
 
 import type { CamlTestCase } from 'caml-spec';
-import { camlCases, camlWithoutWikiRefsCases } from 'caml-spec';
+import { camlCases, camlWikiNoParseCases } from 'caml-spec';
 
 
 // caml ALONE (no marked-wikirefs co-registered). caml never resolves wikirefs — a
 // wiki-valued attribute renders as a plain string span (the 'string' type class) showing
 // the literal [[fname]]. Runs the shared primitives (camlCases) + the standalone wiki
-// cases (camlWithoutWikiRefsCases). caml + wikirefs is covered in render-w-wiki.spec.ts.
+// cases (camlWikiNoParseCases). caml + wikirefs is covered in render-w-wiki.spec.ts.
 
 // marked-specific HTML adjustments:
 // - preserves leading whitespace in paragraphs (markdown-it strips it)
@@ -72,7 +72,7 @@ describe('marked-caml: caml alone (no wikirefs)', () => {
   describe('render; mkdn -> html', () => {
 
     run('caml-spec', camlCases);
-    run('wiki values as string spans', camlWithoutWikiRefsCases);
+    run('wiki values as string spans', camlWikiNoParseCases);
 
   });
 
