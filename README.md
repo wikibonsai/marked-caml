@@ -46,9 +46,13 @@ For syntax specifications, see the [caml-spec](https://github.com/caml-mkdn/tree
 
 ## Options
 
+### `addAttr: (key: string, value: string) => void`
+
+Called once per collected caml attribute (key/value pair); use for metadata or indexing. A wiki-valued attribute is reported with the literal `[[fname]]` as the value — caml does not resolve wikirefs (a co-registered `marked-wikirefs` resolves the rendered value in a later pass; see the caml ⇄ wikirefs hand-off).
+
 ### `attrs`
 
-These are options wikiattrs-specific options.
+These are attrbox-specific options.
 
 #### `attrs.enable`
 
