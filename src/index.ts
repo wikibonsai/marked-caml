@@ -12,13 +12,9 @@ export default function camlExtension(opts: Partial<CamlOptions> = {}): MarkedEx
       render: true,
     },
     cssNames: {
+      attr: 'attr',
       attrbox: 'attrbox',
       attrItem: 'attr-item',
-      attr: 'attr',
-      wiki: 'wiki',
-      invalid: 'invalid',
-      reftype: 'reftype__',
-      doctype: 'doctype__',
     },
     // NB: no resolvers here — caml does NOT resolve wikirefs. It owns the attrbox
     // and emits unresolved wiki markers that a co-registered marked-wikirefs resolves
